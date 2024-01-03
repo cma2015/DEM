@@ -163,8 +163,12 @@ def dem_model(
         dropout: float = 0.1,
         max_epochs: int = 1000,
 ):
+    path_save_model = path_model_o
+    if not path_save_model.endswith(".pth"):
+        path_save_model = path_model_o + ".pth"
     for seed_sp in rand_seeds_split:
-        model_dem(paths_omics_i, path_pheno_i, path_model_o, regr_or_clas, prop_val, seed_sp, batch_size, lr, dropout, max_epochs, es_patience, n_dem_enc)
+        path_save_model_x = path_save_model.replace(".pth", f"_seedsp{seed_sp}.pth")
+        model_dem(paths_omics_i, path_pheno_i, path_save_model_x, regr_or_clas, prop_val, seed_sp, batch_size, lr, dropout, max_epochs, es_patience, n_dem_enc)
 
 def cli_dem_model():
     parser = argparse.ArgumentParser(description="Construct a DEM model based on the provided omics data and phenotypes, employing cross-validation or random sampling.")

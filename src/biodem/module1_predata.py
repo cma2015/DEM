@@ -14,7 +14,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 def na_imputed_scaler(
         omics_data: pd.DataFrame,
-        na_ratio: float = 0.25,
+        na_ratio: float = 0.15,
         is_minmax: bool = True,
         is_zscore: bool = False,
         ) -> pd.DataFrame:
@@ -81,7 +81,7 @@ def variance_pca(X: pd.DataFrame, y: pd.DataFrame,
 
         pca.fit(X_selected1)
         n_components_list = [pca.explained_variance_ratio_]
-        first_component_explained = n_components_list[0]
+        first_component_explained = n_components_list[0][0]
 
         if float(first_component_explained) < target_variance_ratio:
             class_input = X_selected1

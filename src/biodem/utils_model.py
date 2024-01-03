@@ -416,7 +416,7 @@ def intersect_omic(path_in:str, path_feats:str):#os.path.join('example_data', 'm
 
 def dataloader_and_model_pred(path_model: str, paths_omics: list[str], regr_or_clas: bool, batch_size: int):
     model = torch.load(path_model)
-    omics_list = [intersect_omic(paths_omics[xom], path_model + "_" + str(xom) + ".csv") for xom in range(len(paths_omics))]
+    omics_list = [intersect_omic(paths_omics[xom], path_model + "_" + "omics" + str(xom) + "features" + ".csv") for xom in range(len(paths_omics))]
 
     dataset_te = dataset_n_omics(omics_list, "")
     dataloader_te = Dataloader.DataLoader(dataset_te, batch_size=batch_size, shuffle=False)
@@ -462,16 +462,21 @@ def dataloader_trte(path_omics: list[str], path_pheno: str,
 
     n_class = np.unique(pheno_o).shape[0]
 
-    # Split data into tr and te
-    trte_omics_and_pheno = train_test_split(*omics_and_pheno, test_size=prop_val, random_state=rand_state)
+    if prop_val > 0.0:
+        # Split data into tr and te
+        trte_omics_and_pheno = train_test_split(*omics_and_pheno, test_size=prop_val, random_state=rand_state)
 
-    dataset_tr = dataset_n_omics(list(trte_omics_and_pheno[:-2][::2]), trte_omics_and_pheno[-2])
-    dataloader_tr = Dataloader.DataLoader(dataset_tr, batch_size=batch_size, shuffle=True)
+        dataset_tr = dataset_n_omics(list(trte_omics_and_pheno[:-2][::2]), trte_omics_and_pheno[-2])
+        dataloader_tr = Dataloader.DataLoader(dataset_tr, batch_size=batch_size, shuffle=True)
 
-    dataset_te = dataset_n_omics(list(trte_omics_and_pheno[:-2][1::2]), trte_omics_and_pheno[-1])
-    dataloader_te = Dataloader.DataLoader(dataset_te, batch_size=batch_size, shuffle=True)
+        dataset_te = dataset_n_omics(list(trte_omics_and_pheno[:-2][1::2]), trte_omics_and_pheno[-1])
+        dataloader_te = Dataloader.DataLoader(dataset_te, batch_size=batch_size, shuffle=True)
     
-    return dataloader_tr, dataloader_te, n_class
+        return dataloader_tr, dataloader_te, n_class
+    else:
+        dataset_tr = dataset_n_omics(list(omics_and_pheno[:-1]), omics_and_pheno[-1])
+        dataloader_tr = Dataloader.DataLoader(dataset_tr, batch_size=batch_size, shuffle=True)
+        return dataloader_tr, None, n_class
 
 
 def train_val_n_omics_regr(dataloader_tr, dataloader_te, path_model:str, epoch_max:int=540, patience:int=20, learning_rate:float=0.00001, dropout: float = 0.1, n_encoder: int = 4):
@@ -496,6 +501,7 @@ def train_val_n_omics_regr(dataloader_tr, dataloader_te, path_model:str, epoch_m
     
     ## Early stopping
     es_loss:list[float] = []
+    ep_best = 1
     
     for i in range(epoch_max):
         print("\n------------ epoch {} begins ------------".format(i + 1))
@@ -581,6 +587,9 @@ def train_val_n_omics_regr(dataloader_tr, dataloader_te, path_model:str, epoch_m
             ## ES
             if len(es_loss) == 0:
                 es_loss.append(mse_val)
+                min_mse_val = mse_val
+                best_r = r_val
+                model_best = Model.state_dict()
             else:
                 if min(es_loss) < mse_val:
                     es_loss.append(mse_val)
@@ -594,8 +603,12 @@ def train_val_n_omics_regr(dataloader_tr, dataloader_te, path_model:str, epoch_m
                 print("\nThe best epoch: ", ep_best)
                 print("Minimum MSE of validation: ", min_mse_val, "\n")
                 print("Best r of validation: ", best_r)
-                torch.save(model_best, path_model)
+                # torch.save(model_best, path_model)
+                # print("Model saved!", "[{}]".format(path_model))
                 break
+
+    torch.save(model_best, path_model)
+    print("Model saved!", "[{}]".format(path_model))
 
 
 def train_val_n_omics_clas(dataloader_tr, dataloader_te,
@@ -620,6 +633,7 @@ def train_val_n_omics_clas(dataloader_tr, dataloader_te,
     
     ## Early stopping
     es_loss:list[float] = []
+    ep_best = 1
 
     for i in range(epoch_max):
         print("\n------------ epoch {} begins ------------".format(i + 1))
@@ -707,6 +721,8 @@ def train_val_n_omics_clas(dataloader_tr, dataloader_te,
             ## Early stopping
             if len(es_loss) == 0:
                 es_loss.append(loss_acc)
+                max_acc_val = acc_val
+                model_best = Model.state_dict()
             else:
                 if min(es_loss) < loss_acc:
                     es_loss.append(loss_acc)
@@ -718,6 +734,9 @@ def train_val_n_omics_clas(dataloader_tr, dataloader_te,
             if len(es_loss) > patience:
                 print("\nThe best epoch: ", ep_best)
                 print("Maximum Acc of validation: ", max_acc_val, "\n")
-                torch.save(model_best, path_model)
+                # torch.save(model_best, path_model)
+                # print("Model saved!", "[{}]".format(path_model))
                 break
-
+            
+    torch.save(model_best, path_model)
+    print("Model saved!", "[{}]".format(path_model))

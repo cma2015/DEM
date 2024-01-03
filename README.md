@@ -10,14 +10,13 @@
 </div>
 
 > The **DEM** software comprises 4 functional modules: data preprocessing, dual-extraction modeling, phenotypic prediction, and functional gene mining.  
-> For more details, please check out our [publication]().
 
 <br></br>
 
 ---
 
 ## Directory structure
-```
+```sh
 .
 ├── src                        # Python, Julia and R implementation for DEM
 ├── data                       # Data files and example files
@@ -26,15 +25,29 @@
 ├── LICENSE
 └── README.md
 
-./src
-└── biodem
-    ├── module1_predata.py     # Module 1: Data preprocessing
-    ├── module2_model.py       # Module 2: Dual-extraction modeling
-    ├── module3_predict.py     # Module 3: Phenotypic prediction
-    ├── module4_mining.py      # Module 4: Functional gene mining
-    ├── __init__.py            # Initialize the Python package
-    ├── cli_dem.py             # Command line interface for DEM
-    └── utils_model.py         # Utilities for modeling and prediction
+./src/biodem
+├── module1_predata.py         # Module 1: Data preprocessing
+├── module2_model.py           # Module 2: Dual-extraction modeling
+├── module3_predict.py         # Module 3: Phenotypic prediction
+├── module4_mining.py          # Module 4: Functional gene mining
+├── __init__.py                # Initialize the Python package
+├── cli_dem.py                 # Command line interface for DEM
+└── utils_model.py             # Utilities for modeling and prediction
+
+./src/DEMpre
+├── Manifest.toml                    # Julia package metadata
+├── Project.toml                     # Julia package metadata
+└── src
+    ├── DEMpre.jl                    # Initialize the Julia package
+    └── modules
+        ├── module_SearchSNP.jl      # Search the nearest genic/intergenic region of SNP from GTF file
+        ├── module_DimsReduction.jl  # Train the model and transform SNP data
+        ├── module_InterpretModel.jl # Get the parameters of the model for transformation interpretation
+        ├── models.jl                # Model for SNP transformation
+        ├── types.jl                 # Self-defined data types
+        ├── utils_dl.jl              # Utilities for modeling
+        └── utils.jl                 # Utilities for IO and multithreading
+
 ```
 
 ---
@@ -91,18 +104,42 @@
 > Recommended: NVIDIA graphics card with 12GB memory or larger.
 
 ## Install biodem
-Simple installation from [PyPI](https://pypi.org/project/biodem)
-```sh
-pip install biodem
-```
+
 > [Conda](https://conda.io/projects/conda/en/latest/index.html) / [Mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) or virtualenv is recommended for installation.
+
+1. Create a conda environment:
+    ```sh
+    conda create -n dem python=3.11
+    conda activate dem
+
+    # Install PyTorch with CUDA support
+    conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+    ```
+
+2. Install biodem package:
+    + Simple installation from [PyPI](https://pypi.org/project/biodem)
+        ```sh
+        pip install biodem
+        ```
+
+    + Get biodem package and install from local
+        Click to download: https://github.com/cma2015/DEM/blob/main/dist/biodem-0.2.0-py3-none-any.whl
+        ```sh
+        pip install biodem-0.2.0-py3-none-any.whl
+        ```
+
+A pipeline for testing is provided in [**`./test/test_biodem.py`**](test/test_biodem.py).
+```sh
+cd test
+python test_biodem.py
+```
 
 ---
 
 <br></br>
 
 ## Input and output file formats
-Please refer to **the example files** in [`./data/examples`](data/examples/) for **the file formats** that will be used in following methods.
+Please refer to the directory [**`./data`**](data/) for **the file formats** that will be used in following methods.
 
 ---
 
@@ -284,7 +321,7 @@ dem_predict(your_model_path, your_omics_files_paths, your_phenotype_output_path)
 ## which is intended to SNP transformation
 
 1. **Search for genomic regions associated with SNPs**
-    + It accepts SNP positions and the reference genome as inputs, and it returns the genomic regions containing the SNPs along with their associated gene/intergenic information.
+    + It accepts SNP positions and the reference genome as inputs, and it returns the genomic regions containing the SNPs along with their associated genic/intergenic information.
 2. **Transform SNP data to genomic embedding**
     + The sparse and discrete SNP features is transformed into dense and continuous features that represent genomic variation.
 
@@ -303,6 +340,7 @@ Please refer to **the example files** in [`./data/examples`](data/examples/) for
 ## Get DEMpre.jl
 ```sh
 git clone https://github.com/cma2015/dem.git
+cd DEM
 ```
 
 ## How to use `DEMpre.jl`
@@ -321,13 +359,13 @@ include("./src/DEMpre/src/DEMpre.jl")# It is relative path in this git repositor
 
 ### Use main functions
 + #### `search_gene_of_snp`
-    <br>Search the nearest gene/intergenic region of SNP from GTF file. It is accelerated by multithreading.</br>
+    <br>Search the nearest genic/intergenic region of SNP from GTF file. It is accelerated by multithreading.</br>
 
     Parameters | Type | Required | Descriptions
     --- | --- | --- | ---
     `path_snp` | String | * | path of SNP file
     `path_gtf` | String | * | path of GTF file
-    `path_output` | String | * | path of output file where the nearest gene/intergenic regions will be saved
+    `path_output` | String | * | path of output file where the nearest genic/intergenic regions will be saved
     `include_intergenic` | Bool | optional | whether to include SNPs that are located in intergenic region (default: false)
     `num_threads` | Int64 | optional | number of threads to use (default: 8)
 

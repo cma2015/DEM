@@ -27,7 +27,7 @@ def rank_feat(path_model_i: str,
 
     dataloader_rk, dataloader_, n_class = dataloader_trte(paths_omics_i, path_pheno_i, 0.0, regr_or_clas, 32,1)
 
-    original_loss = test_n_omics_sf(dataloader_rk, optimal_mdoel, config, regr_or_clas)
+    original_loss = test_n_omics_sf(optimal_mdoel, dataloader_rk, config, regr_or_clas)
 
     each_omics_importance_score = []
 
@@ -50,7 +50,7 @@ def rank_feat(path_model_i: str,
 
                 # !!!
                 dataloader_rk, dataloader_, n_class = dataloader_trte(paths_omics_i, path_pheno_i, 0.0, regr_or_clas, 32, 1, rand, xom, shuffled_feature)
-                loss = test_n_omics_sf(dataloader_rk, optimal_mdoel, config, regr_or_clas)
+                loss = test_n_omics_sf(optimal_mdoel, dataloader_rk, config, regr_or_clas)
                 loss = original_loss - loss
 
                 features_score.append(loss)

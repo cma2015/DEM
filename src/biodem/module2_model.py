@@ -5,7 +5,7 @@ def save_supplement_for_model(paths_omics: list[str], path_save_model: str):
         tmpfile = pd.read_csv(paths_omics[xom], index_col=0)
         tmpcolname = list(tmpfile.columns)
         tmpcoldf = pd.DataFrame(tmpcolname)
-        path_w = path_save_model + "_" + str(xom) + ".csv"
+        path_w = path_save_model + "_" + "omics" + str(xom) + "features" + ".csv"
         tmpcoldf.to_csv(path_w, header=False, index=False)
 
 def save_supplement_label_template(path_label:str, path_save_model:str):
@@ -16,7 +16,7 @@ def save_supplement_label_template(path_label:str, path_save_model:str):
 
 
 def model_dem(paths_omics_i: list[str], path_pheno_i: str,
-              path_model_o: str, 
+              path_model_o: str,
               regr_clas: bool,
               prop_val: float = 0.2, split_seed: int = 1234,
               batch_size: int = 32, lr: float = 0.0001, dropout: float = 0.1,
