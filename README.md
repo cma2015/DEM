@@ -5,106 +5,26 @@
 ### Dual-extraction method for phenotypic prediction and functional gene mining
 
 [![pypi-badge](https://img.shields.io/pypi/v/biodem)](https://pypi.org/project/biodem)
+[![pypi-badge](https://img.shields.io/pypi/dm/biodem.svg?label=Pypi%20downloads)](https://pypi.org/project/biodem)
 [![license-badge](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
-> The **DEM** software comprises 4 functional modules: data preprocessing, dual-extraction modeling, phenotypic prediction, and functional gene mining.  
++ The **DEM** software comprises 4 functional modules: data preprocessing, dual-extraction modeling, phenotypic prediction, and functional gene mining.  
+
+
+![modules of biodem](fig_dem.png)
 
 <br></br>
 
----
+## Installation
 
-## Directory structure
-```sh
-.
-├── src                        # Python, Julia and R implementation for DEM
-├── data                       # Data files and example files
-├── tests                      # Easy tests for packages and pipelines
-├── pyproject.toml             # Python package metadata
-├── LICENSE
-└── README.md
-
-./src/biodem
-├── module1_predata.py         # Module 1: Data preprocessing
-├── module2_model.py           # Module 2: Dual-extraction modeling
-├── module3_predict.py         # Module 3: Phenotypic prediction
-├── module4_mining.py          # Module 4: Functional gene mining
-├── __init__.py                # Initialize the Python package
-├── cli_dem.py                 # Command line interface for DEM
-└── utils_model.py             # Utilities for modeling and prediction
-
-./src/DEMpre
-├── Manifest.toml                    # Julia package metadata
-├── Project.toml                     # Julia package metadata
-└── src
-    ├── DEMpre.jl                    # Initialize the Julia package
-    └── modules
-        ├── module_SearchSNP.jl      # Search the nearest genic/intergenic region of SNP from GTF file
-        ├── module_DimsReduction.jl  # Train the model and transform SNP data
-        ├── module_InterpretModel.jl # Get the parameters of the model for transformation interpretation
-        ├── models.jl                # Model for SNP transformation
-        ├── types.jl                 # Self-defined data types
-        ├── utils_dl.jl              # Utilities for modeling
-        └── utils.jl                 # Utilities for IO and multithreading
-
-```
-
----
-
-<br></br>
-
-> **DEM is mainly implemented in Python. You may use the Julia package [DEMpre.jl](#dem-provides-the-julia-package-demprejl) in some steps to process and transform SNP data.**
-
-# DEM has the Python package [biodem](https://pypi.org/project/biodem)
-## which includes 4 functional modules:
-
-![modules of biodem](biodem.png)
-
-### 1. Data preprocessing
-
-+ _Steps:_
-    1. Imputation & min-max scaling
-    2. Feature selection using the variance threshold method, PCA, and random forests for multi-omics data.
-    3. SNP transformation
-    
-+ _Related functions:_
-    1. [**`dem-impute`**](#dem-impute)
-    2. [**`dem-select-varpca`**](#dem-select-varpca), [**`dem-select-rf`**](#dem-select-rf)
-    3. (In Julia) [**`search_gene_of_snp`**](#search_gene_of_snp), [**`train4embed`**](#train4embed), [**`transform_snp`**](#transform_snp)
-
-### 2. Dual-extraction modeling
-
-+ It takes preprocessed multi-omics data and phenotypic data as inputs for training and validation, based on which the DEM model is constructed. It is capable of performing both classification and regression tasks.
-    
-+ _Related function:_
-    + [**`dem-model`**](#dem-model)
-
-### 3. Phenotypic prediction
-
-+ It takes trained model and omics data of new/test samples as inputs and returns the predicted phenotypic values.
-
-+ _Related function:_
-    + [**`dem-predict`**](#dem-predict)
-
-### 4. Functional gene mining
-
-+ It performs functional gene mining based on the trained DEM model through _feature permutation_.
-
-+ _Related function:_
-    + [**`dem-rank`**](#dem-rank)
-
----
-
-<br></br>
-
-## System requirements
-+ Python 3.10 or 3.11.
+### System requirements
++ Python 3.11.
 + Graphics: GPU with [PyTorch](https://pytorch.org) support.
 > Recommended: NVIDIA graphics card with 12GB memory or larger.
 
-## Install biodem
-
+### Install `biodem` package
 > [Conda](https://conda.io/projects/conda/en/latest/index.html) / [Mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) or virtualenv is recommended for installation.
 
 1. Create a conda environment:
@@ -122,24 +42,81 @@
         pip install biodem
         ```
 
-    + Get biodem package and install from local
-        Click to download: https://github.com/cma2015/DEM/blob/main/dist/biodem-0.2.0-py3-none-any.whl
-        ```sh
-        pip install biodem-0.2.0-py3-none-any.whl
-        ```
-
-A pipeline for testing is provided in [**`./test/test_biodem.py`**](test/test_biodem.py).
+#### Test installation
+A pipeline for testing is provided in [**`./test/test_biodem.py`**](./test/test_biodem.py). *It's also a simple usage example of `biodem`.*
 ```sh
 cd test
 python test_biodem.py
 ```
 
----
-
 <br></br>
 
-## Input and output file formats
-Please refer to the directory [**`./data`**](data/) for **the file formats** that will be used in following methods.
+# DEM ([biodem](https://pypi.org/project/biodem)) includes 4 functional modules:
+
+### 1. Data preprocessing
+
+> **Nested cross-validation is recommended for data preprocessing, before these steps.**
+
++ _Steps:_
+    1. Split the data into nested cross-validation folds.
+    2. Imputation & standardization.
+    2. Feature selection using the variance threshold method, PCA, and RF for multi-omics data.
+    3. SNP2Gene transformation.
+    
++ _Related functions:_
+
+    Function | Command line tool
+    --- | ---
+    `filter_na_pheno` | `filter-pheno`
+    `KFoldSplitter` | -
+    `data_prep_ncv_regre` | [`ncv-prep-r`](#ncv-prep-r)
+    `data_prep_ncv_class` | [`ncv-prep-c`](#ncv-prep-c)
+    `impute_omics` | [`dem-impute`](#dem-impute)
+    `select_varpca` | [`dem-select-varpca`](#dem-select-varpca)
+    `select_rf` | [`dem-select-rf`](#dem-select-rf)
+    `build_snp_dict` | - [Instruction (in Julia)](#transform-snps-to-genomic-embedding)
+    `encode_vcf2matrix` | - [Instruction (in Julia)](#transform-snps-to-genomic-embedding)
+    `process_avail_snp` | -
+    `SNPDataModule` | -
+    `SNP2GeneTrain` | -
+    `SNP2GenePipeline` | [`dem-s2g-pipe`](#dem-s2g-pipe)
+    `snp_to_gene` | -
+    `train_snp2gene` | -
+
+### 2. Dual-extraction modeling
+
++ It takes preprocessed multi-omics data and phenotypic data as inputs for nested cross-validation, based on which the DEM model is constructed. It is capable of performing both classification and regression tasks.
+    
++ _Related function:_
+
+    Function | Command line tool
+    --- | ---
+    `DEMLTNDataModule` | -
+    `DEMTrain` | -
+    `DEMTrainPipeline` | [`dem-train-pipe`](#dem-train-pipe)
+
+### 3. Phenotypic prediction
+
++ It takes a pretrained model and omics data of new samples as inputs and returns the predicted phenotypes.
+
++ _Related function:_
+
+    Function | Command line tool
+    --- | ---
+    `DEMPredict` | -
+    `predict_pheno` | [`dem-predict`](#dem-predict)
+
+### 4. Functional gene mining
+
++ It performs functional gene mining based on the trained DEM model through _feature permutation_.
+
++ _Related function:_
+
+    Function | Command line tool
+    --- | ---
+    `DEMFeatureRanking` | -
+    `rank_feat` | [`dem-rank`](#dem-rank)
+
 
 ---
 
@@ -147,12 +124,90 @@ Please refer to the directory [**`./data`**](data/) for **the file formats** tha
 
 ## How to use `biodem`
 We provide both [**command line tools**](#use-command-line-tools) and [**importable functions**](#import-biodem-in-your-python-project) for `biodem`.
+> DEM is mainly implemented in Python. We also provide two Julia scripts for VCF&GFF file processing and SNP encoding.
+
+#### Input and output file formats
+Please refer to the directory [**`./data`**](./data/) for **the file formats** that will be used in following methods.
+
+<br></br>
+
+### Import `biodem` in your Python project
+The main functions' purposes and parameters are described in related sections of [***Use command line tools***](#use-command-line-tools).
+**We provide a simple example analysis pipeline in [`./test/test_biodem.py`](./test/test_biodem.py) to demonstrate how to use `biodem` in Python.**
+
+```python
+# An example:
+
+# Use a pretrained DEM model to predict phenotypes of given omics data files
+from biodem import predict_pheno
+
+# Define the paths to your model and omics data files
+model_path = 'dem_model.ckpt'
+omics_file_paths = ['omics_type_1.csv', 'omics_type_2.csv']
+output_dir = 'dir_predictions'
+
+# Run the DEM model to predict phenotypes
+predict_pheno(
+    model_path = model_path,
+    omics_paths = omics_file_paths,
+    result_dir = output_dir,
+    batch_size = 16,
+    map_location = None,
+)
+```
 
 <br></br>
 
 ### Use command line tools
 
 > In terminal, run the command like `dem-impute --help` or `dem-impute -h` for help.
+
+<br></br>
+
++ #### `ncv-prep-r`
+    <br>The processing steps are the same as "[1. Data preprocessing](#1-data-preprocessing)".</br>
+
+    ```sh
+    # Usage:
+    ncv-prep-r -K 5 -k 5 -i <input.csv> -o <output_dir> -t 0.01 -n 1000 -x <trait> --raw-label <labels.csv> --n-trees 2000 --na 0.1
+    ```
+
+    Parameters | Type | Required | Description
+    --- | --- | --- | ---
+    `-K` `--loop-outer` | int | * | Number of outer loops for nested cross-validation.
+    `-k` `--loop-inner` | int | * | Number of inner loops for nested cross-validation.
+    `-i` `--input` | str | * | Path to the input omics/phenotypes data.
+    `-o` `--dir-out` | str | * | Path to the output directory.
+    `-t` `--threshold-var` | float | * | Threshold for variance selection.
+    `-n` `--n-rf-selected` | int | * | Number of selected features by random forest.
+    `-x` `--trait` | str | * | Name of the phenotype column in the input data.
+    `--raw-label` | str | * | Path to the raw labels data.
+    `--n-trees` | int | * | Number of trees in random forest.
+    `--na` | float | * | Threshold for missing value.
+
+<br></br>
+
++ #### `ncv-prep-c`
+    <br>The processing steps are the same as "[1. Data preprocessing](#1-data-preprocessing)"</br>
+    ```sh
+    # Usage:
+    ncv-prep-c -K 5 -k 5 -i <input.csv> -o <output_dir> -t 0.01 -r 0.9 -x <trait> --raw-label <labels.csv> --na 0.1
+    ```
+
+    Parameters | Type | Required | Description
+    --- | --- | --- | ---
+    `-K` `--loop-outer` | int | * | Number of outer loops for nested cross-validation.
+    `-k` `--loop-inner` | int | * | Number of inner loops for nested cross-validation.
+    `-i` `--input` | str | * | Path to the input omics/phenotypes data.
+    `-o` `--dir-out` | str | * | Path to the output directory.
+    `-t` `--threshold-var` | float | * | Threshold for variance selection.
+    `-r` `--target-var-ratio` | float | * | Target variance ratio for PCA.
+    `-x` `--trait` | str | * | Name of the phenotype column in the input data.
+    `--raw-label` | str | * | Path to the raw labels data.
+    `--na` | float | * | Threshold for missing value.
+
+
+<br></br>
 
 + #### `dem-impute`
     <br>The tool contains 3 steps:</br>
@@ -199,8 +254,9 @@ We provide both [**command line tools**](#use-command-line-tools) and [**importa
     `-I` `--inom` | string | * | Input a path to an omics file
     `-i` `--inph` | string | * | Input a path to a trait's phenotypes
     `-O` `--outom` | string | * | Define your output omics file path
-    `-V` `--minvar` | float | optional | The allowed minimum variance of a feature (DEFAULT: 0.0)
-    `-P` `--varpc` | float | optional | Target variance of PC1 (DEFAULT: 0.5)
+    `-V` `--minvar` | float |  | The allowed minimum variance of a feature (DEFAULT: 0.0)
+    `-P` `--varpc` | float |  | Target variance of PC1 (DEFAULT: 0.5)
+
 
 <br></br>
 
@@ -216,36 +272,48 @@ We provide both [**command line tools**](#use-command-line-tools) and [**importa
     `-i` `--inph` | string | * | Input a path to a trait's phenotypes
     `-O` `--outom` | string | * | Define your output omics file path
     `-n` `--nfeat` | int | * | Number of features to save
-    `-p` `--propv` | float | optional | Proportion of validation set (DEFAULT: 0.2)
-    `-k` `--kfold` | int | optional | Number of folds for k-fold cross validation (DEFAULT: 5)
-    `-N` `--ntree` | int | optional | Number of trees in the random forest (DEFAULT: 2500) (larger number of trees will result in more accurate results, but will take longer to run)
-    `-S` `--seedrf` | list[int] | optional | Random seeds for RF (DEFAULT: 1000, 1001, ..., 1009)
-    `-s` `--seedsp` | list[int] | optional | Random seeds for splitting (DEFAULT: 0, 1, ..., 4)
+    `-N` `--ntree` | int |  | Number of trees in the random forest (DEFAULT: 2500) (larger number of trees will result in more accurate results, but will take longer to run)
+    `-S` `--seedrf` | list[int] |  | Random seeds for RF (DEFAULT: 1000, 1001, ..., 1009)
 
 
 <br></br>
 
-+ #### `dem-model`
-    <br>DEM aims to achieve high phenotypic prediction accuracy and identify the most informative omics features for the given trait.
-    This tool is used to construct a dual-extraction model based on the given omics data and phenotype, through cross validation or random sampling.</br>
++ #### `dem-s2g-pipe`
+    <br>The pipeline for SNP2Gene modeling and transformation based on nested cross-validation.</br>
     ```sh
-    # Usage example:
-    dem-model -o <where_to_save_model> -r 1 -i <phenotype_file> -I <omics1_file> <omics2_file> <omics3_file> --seedsp  1233 1234 1235 1236 1237
+    # Usaage example:
+    dem-s2g-pipe -t <trait_name> -l <n_label_class> --inner-lbl <dir_label_inner> --outer-lbl <dir_label_outer> --h5 <path_h5_processed> --json <path_json_genes_snps> --log-dir <log_dir> --o-s2g-dir <dir_to_save_converted>
     ```
     Parameters | Type | Required | Descriptions
     --- | --- | --- | ---
-    `-I` `--inom` | list[string] | * | Input path(s) to omics file(s)
-    `-i` `--inph` | string | * | Input a path to a trait's phenotypes
-    `-o` `--outmd` | string | * | The path to save your trained DEM model
-    `-r` `--regrclas` | int, 0 or 1 | * | Regression or Classification task (1 denotes regression, 0 denotes classification)
-    `-p` `--propv` | float | optional | Proportion of validation set (DEFAULT: 0.2)
-    `-k` `--kfold` | int | optional | Number of folds for k-fold cross validation (DEFAULT: 5)
-    `-s` `--seedsp` | list[int] | optional | Random seed(s) for data partition(s) (DEFAULT: 0...4)
-    `-b` `--batchsize` | int | optional | Batch size (DEFAULT: 32)
-    `-l` `--learningrate` | float | optional | Learning rate (DEFAULT: 0.0001)
-    `-e` `--patience` | int | optional | Early stopping patience (DEFAULT: 10)
-    `-N` `--nenc` | int | optional | Number of DEM encoders (DEFAULT: 4)
-    `-D` `--dropout` | float | optional | Dropout rate (DEFAULT: 0.1)
+    `-t` `--trait` | string | * | Trait name
+    `-l` `--lbl-class` | int | * | Number of classes for trait
+    `--inner-lbl` | string | * | Directory to inner label files
+    `--outer-lbl` | string | * | Directory to outer label files
+    `--h5` | string | * | Path to h5 file containing genotype data
+    `--json` | string | * | Path to json file containing SNP-gene mapping information
+    `--log-dir` | string | * | Directory to save log files and models
+    `--o-s2g-dir` | string | * | Directory to save SNP2Gene results
+
+
+<br></br>
+
++ #### `dem-train-pipe`
+    <br>The pipeline for DEM modeling and prediction on nested cross-validation datasets with hyperparameter optimization. DEM aims to achieve high phenotypic prediction accuracy and identify the most informative omics features for the given trait.
+    This tool is used to construct a dual-extraction model based on the given omics data and phenotype, through cross validation or random sampling.</br>
+    ```sh
+    # Usage example:
+    dem-train-pipe -o <log_dir> -t <trait_name> -l <n_label_class> --inner-lbl <dir_label_inner> --outer-lbl <dir_label_outer> --inner-om <dir_omics_inner> --outer-om <dir_omics_outer>
+    ```
+    Parameters | Type | Required | Descriptions
+    --- | --- | --- | ---
+    `-o` `--log-dir` | string | * | Directory to save log files and models
+    `-t` `--trait` | string | * | Trait name
+    `-l` `--lbl-class` | integer | * | Number of classes for trait
+    `--inner-lbl` | string | * | Directory to inner label files
+    `--outer-lbl` | string | * | Directory to outer label files
+    `--inner-om` | string | * | Directory to inner omics files
+    `--outer-om` | string | * | Directory to outer omics files
 
 
 <br></br>
@@ -258,186 +326,133 @@ We provide both [**command line tools**](#use-command-line-tools) and [**importa
     ```
     Parameters | Type | Required | Descriptions
     --- | --- | --- | ---
-    `-m` `--inmd` | string | * | The path to your trained DEM model
     `-I` `--inom` | list[string] | * | Input path(s) to omics file(s)
-    `-o` `--outph` | string | * | The path to save predicted phenotypes
+    `-m` `--inmd` | string | * | The path to a pretrained DEM model
+    `-o` `--outdir` | string | * | The directory to save predicted phenotypes
 
-    
+
 <br></br>
 
 + #### `dem-rank`
     <br>Assess the importance of features by contrasting the DEM model’s test performance on the actual feature values against those where the feature values have been randomly shuffled. Features that are ranked highly are then identified. </br>
     ```sh
     # Usage example:
-    dem-rank -m <model_file_path> -r 1 -i <phenotype_file> -o <rank_output> -s 1000 1111 1112 1113 -I <omics1_file> <omics2_file>
+    dem-rank -I <omics_file_path> -i <pheno_file_path> -t <trait_name> -l <n_label_class> -m <model_path> -o <output_dir> -b <batch_size> -s <seed1> <seed2>...
     ```
     Parameters | Type | Required | Descriptions
     --- | --- | --- | ---
-    `-I` `--inom` | list[string] | * | Input path(s) to omics file(s)
+    `-I` `--inom` | string | * | Input path(s) to omics file(s)
     `-i` `--inph` | string | * | Input a path to a trait's phenotypes
-    `-m` `--inmd` | string | * | The path to your trained DEM model
-    `-o` `--outrank` | string | * | The path to save importance scores and the order
-    `-r` `--regrclas` | int, 0 or 1 | * | Regression or Classification task (1 denotes regression, 0 denotes classification)
-    `-s` `--seedrk` | list[int] | optional | Random seeds for ranking repeats (default: 0-9)
+    `-t` `--trait` | string | * | The name of the trait to be predicted
+    `-l` `--lbl-class` | int | * | Number of classes for the trait (1 for regression)
+    `-m` `--inmd` | string | * | The path to a pretrained DEM model
+    `-o` `--outdir` | string | * | The directory to save ranked features
+    `-b` `--batch-size` | int |  | Batch size for feature ranking (default: 16)
+    `-s` `--seeds` | integer |  | Random seeds for ranking repeats (default: 0-9)
 
-
----
 
 <br></br>
 
-### Import `biodem` in your Python project
-The main functions of **`biodem`** are listed below.
-Their purposes and parameters are described in related sections of [***Use command line tools***](#use-command-line-tools).
+## Transform SNPs to Genomic Embedding
 
-Python functions | Corresponding command line tools
---- | ---
-**`feat_impute_scale`** | [`dem-impute`](#dem-impute)
-**`feat_select_varpca`** | [`dem-select-varpca`](#dem-select-varpca)
-**`feat_select_rf`** | [`dem-select-rf`](#dem-select-rf)
-**`dem_model`** | [`dem-model`](#dem-model)
-**`dem_predict`** | [`dem-predict`](#dem-predict)
-**`dem_rank`** | [`dem-rank`](#dem-rank)
+1. **Build a dict of SNPs and their corresponding genomic regions**
+    + It accepts a VCF file and a GFF file (reference genome) as input, and returns a dictionary of SNPs and their corresponding genomic regions.
+2. **One-hot encode SNPs**
+    + It accepts a dictionary of SNPs and their corresponding genomic regions, and returns one-hot encoded SNPs based on the actual di-nucleotide composition of each SNP.
+3. **Transform encoded SNPs to genomic embedding**
+    + The one-hot encoded SNPs are transformed into dense and continuous features that represent genomic variation (each feature corresponds to a gene).
 
-```python
-# Example:
-# Use a trained DEM model to predict the phenotype of given omics data files
-
-# dem_predict is a main function in biodem
-from biodem import dem_predict
-
-your_model_path = '~/model_dem.pth'
-your_omics_files_paths = ['~/omics_1.csv', '~/omics_2.csv']
-your_phenotype_output_path = '~/phenotype_predicted.csv'
-
-# Run the prediction
-dem_predict(your_model_path, your_omics_files_paths, your_phenotype_output_path)
-```
-
----
-
-<br></br>
-
-# DEM provides the Julia package DEMpre.jl
-## which is intended to SNP transformation
-
-1. **Search for genomic regions associated with SNPs**
-    + It accepts SNP positions and the reference genome as inputs, and it returns the genomic regions containing the SNPs along with their associated genic/intergenic information.
-2. **Transform SNP data to genomic embedding**
-    + The sparse and discrete SNP features is transformed into dense and continuous features that represent genomic variation.
-
-The package is used to transform encoded SNP data to genomic embedding whose dimensionality is determined by the number of genomic regions (default: number of genes).
-
-## System requirements
-+ [Julia](https://julialang.org) 1.9 or later.
-+ Graphics: GPU with [Flux](https://github.com/FluxML/Flux.jl) support.
-> Recommended: NVIDIA graphics card with 12GB memory or larger.
+## Requirements
+1. Please [install `biodem`](#installation) first.
+2. Install [Julia](https://julialang.org) 1.10 .
+3. Install the following Julia packages:
+    ```sh
+    # Open Julia REPL
+    julia
+    ```
+    ```julia
+    # In Julia REPL
+    using Pkg
+    Pkg.add("JLD2")
+    Pkg.add("HDF5")
+    Pkg.add("JSON")
+    Pkg.add("GFF3")
+    Pkg.add("GeneticVariation")
+    Pkg.add("CSV")
+    Pkg.add("DataFrames")
+    ```
 
 ## Input and output file formats
-Please refer to **the example files** in [`./data/examples`](data/examples/) for **the file formats** that will be used in following functions.
+Please refer to **the example files** in [`./data/`](./data/) for **the file formats** that will be used in following functions.
 
 <br></br>
 
-## Get DEMpre.jl
-```sh
-git clone https://github.com/cma2015/dem.git
-cd DEM
-```
+### Example usage
 
-## How to use `DEMpre.jl`
-
-### Activate the package
+- Build a dictionary of SNPs and their corresponding genomic regions from a VCF file and a GFF file. The one-hot encoded SNPs are saved to a H5 file.
 ```sh
 # In shell, enter Julia REPL
 julia
 ```
 ```julia
 # In Julia REPL
-using Pkg
-Pkg.activate("./src/DEMpre")# It is relative path in this git repository
-include("./src/DEMpre/src/DEMpre.jl")# It is relative path in this git repository
+
+# Import functions from git repository
+include("./src/biodem/utils_vcf_gff.jl")
+include("./src/biodem/utils_encode_snp_vcf.jl")
+
+# Build a dict of SNPs and their corresponding genomic regions
+path_gff = "example.gff"
+path_vcf = "example.vcf"
+build_snp_dict(path_vcf, path_gff, true, true)
+
+# One-hot encode SNPs
+path_snp_dict = "snp_dict.jld2"# The output of build_snp_dict function
+encode_vcf2matrix(path_snp_dict, true)
 ```
 
-### Use main functions
-+ #### `search_gene_of_snp`
-    <br>Search the nearest genic/intergenic region of SNP from GTF file. It is accelerated by multithreading.</br>
+- Pick up available SNPs and their corresponding genomic regions from the H5 file produced by `encode_vcf2matrix` function.
+```python
+# In Python
 
-    Parameters | Type | Required | Descriptions
-    --- | --- | --- | ---
-    `path_snp` | String | * | path of SNP file
-    `path_gtf` | String | * | path of GTF file
-    `path_output` | String | * | path of output file where the nearest genic/intergenic regions will be saved
-    `include_intergenic` | Bool | optional | whether to include SNPs that are located in intergenic region (default: false)
-    `num_threads` | Int64 | optional | number of threads to use (default: 8)
+# Import function for processing available SNPs
+from biodem import process_avail_snp
 
-    ```julia
-    # Example:
-    path_snp = "~/your_SNP_file.csv"
-    path_gtf = "~/your_GTF_file.gtf"
-    path_output = "~/your_output.csv"
-    include_intergenic = false
-    num_threads = 8
+path_json_snp_gene_relation = "gene4snp.json"
+path_h5_snp_matrix = "snp_and_gene4snp.h5"
 
-    # Run
-    DEMpre.search_gene_of_snp(path_snp, path_gtf, path_output, include_intergenic, num_threads)
-    ```
+process_avail_snp(path_h5_snp_matrix, path_json_snp_gene_relation)
+# The output will be a new H5 file containing only available SNPs and their corresponding genomic regions.
+```
 
-<br></br>
-
-+ #### `train4embed`
-    <br>Construct a locally connected neural network and train it with SNP data and phenotypes. It is intended to transform SNP data to genomic embedding.</br>
-
-    Parameters | Type | Required | Descriptions
-    --- | --- | --- | ---
-    `path_snp2region` | String | * | path of SNP2region file (the result of search_gene_of_snp)
-    `path_snp_matrix` | String | * | path of SNP matrix file
-    `path_phenotype` | String | * | path of phenotype file
-    `output_directory` | String | * | path of output directory for saving the trained model and records
-    `compress_model` | Bool | optional | whether to compress the sparse model (default: true)
-    `prop_val` | Float64 | optional | proportion of validation data (default: 0.2)
-    `batch_size` | Int64 | optional | batch size (default: 32)
-    `max_epochs` | Int64 | optional | maximum epochs for training (default: 1000)
-    `learning_rate` | Float64 | optional | learning rate (default: 0.001)
-    `early_stop_patience` | Int64 | optional | early stop patience (default: 70)
-
-    ```julia
-    # Example:
-    path_snp2region = "~/your_snp2region_file.csv"
-    path_snp_matrix = "~/your_snp_matrix_file.csv"
-    path_phenotype = "~/your_phenotype_file.csv"
-    output_directory = "~/your_output_directory"
-    compress_model = true
-    prop_val = 0.2
-    batch_size = 32
-    max_epochs = 1000
-    learning_rate = 0.0001
-    early_stop_patience = 70
-
-    # Run
-    DEMpre.train4embed(path_snp2region, path_snp_matrix, path_phenotype, output_directory, compress_model, prop_val, batch_size, max_epochs, learning_rate, early_stop_patience)
-    ```
-
-<br></br>
-
-+ #### `transform_snp`
-    <br>Transform encoded SNP data to genomic embedding.</br>
-
-    Parameters | Type | Required | Descriptions
-    --- | --- | --- | ---
-    `path_model` | String | * | path of trained model
-    `path_snp_matrix` | String | * | path of new SNP data for test
-    `path_output` | String | * | path of genomic embedding
-
-    ```julia
-    # Example:
-    path_model = "~/your_model.jld2"
-    path_snp_matrix = "~/your_snp_matrix.csv"
-    path_output = "~/your_output_embedding.csv"
-
-    # Run
-    DEMpre.transform_snp(path_model, path_snp_matrix, path_output)
-    ```
+- Train SNP2Gene models
+Please refer to the [`dem-s2g-pipe`](#dem-s2g-pipe) and [`snp_to_gene`](./src/biodem/module_snp.py) function for more details.
 
 ---
+
+## Directory structure
+```sh
+.
+├── src                        # Python and Julia implementation for DEM
+├── data                       # Data files and example files
+├── test                       # Easy tests for packages and pipelines
+├── pyproject.toml             # Python package metadata
+├── LICENSE                    # License file
+└── README.md                  # This file
+
+./src/biodem
+├── __init__.py                # Initialize the Python package
+├── cli_dem.py                 # Command line interface for DEM
+├── utils.py                   # Utilities for modeling and prediction
+├── module_data_prep.py        # Data preprocessing
+├── module_data_prep_ncv.py    # Data preprocessing for nested cross-validation
+├── module_snp.py              # SNP2Gene modeling pipeline for SNP preprocessing
+├── module_dem.py              # DEM modeling pipeline, Phenotypic prediction, and Functional gene mining
+├── model_dem.py               # DEM model definition
+├── model_snp2gene.py          # SNP2Gene model definition
+├── utils_vcf_gff.jl           # Utilities for VCF and GFF file processing
+└── utils_encode_snp_vcf.jl    # Utilities for one-hot encoding SNPs
+```
 
 <br></br>
 
