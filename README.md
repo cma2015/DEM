@@ -7,7 +7,6 @@
 [![pypi-badge](https://img.shields.io/pypi/v/biodem)](https://pypi.org/project/biodem)
 [![pypi-badge](https://img.shields.io/pypi/dm/biodem.svg?label=Pypi%20downloads)](https://pypi.org/project/biodem)
 ![License](https://img.shields.io/github/license/cma2015/DEM)
-[![docs-badge](https://wuchenh.github.io/DEM/)](https://wuchenh.github.io/DEM/)
 
 </div>
 
