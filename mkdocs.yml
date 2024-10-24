@@ -1,0 +1,100 @@
+site_name: DEM Docs
+site_url: https://cma2015.github.io/DEM
+repo_url: https://github.com/cma2015/DEM
+repo_name: cma2015/DEM
+site_description: Documentation for DEM
+site_author: Chenhua Wu
+copyright: Copyright &copy; 2024 MaLab@NWAFU
+theme:
+  favicon: images/favicon.svg
+  icon:
+    logo: material/dna
+    repo: fontawesome/brands/github
+  name: material
+  language: en
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  features:
+    - palette-toggle
+    - content.code.copy
+    - navigation-expand
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.prune
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+
+extra:
+  generator: false
+  social:
+    - icon: material/home
+      link: http://www.omicstudio.cloud/
+
+plugins:
+  - search
+  - same-dir
+  - autorefs
+  - mkdocstrings:
+      enabled: !ENV [ENABLE_MKDOCSTRINGS, true]
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            heading_level: 3
+            docstring_style: google
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_source: true
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+nav:
+  - Overview: index.md
+  - Installation: installation.md
+  - Quick start: quick_start.md
+  - Modules:
+    - S2G:
+      - Usage: reference/biodem.s2g.usage.md
+      - Pipeline: reference/biodem.s2g.pipeline.md
+      - Model definition: reference/biodem.s2g.model.md
+    - DEM:
+      - Usage: reference/biodem.dem.usage.md
+      - Pipeline: reference/biodem.dem.pipeline.md
+      - Model definition: reference/biodem.dem.model.md
+      - Feature ranking: reference/biodem.dem.rank.md
+    - Utilities:
+      - Preprocessing data: reference/biodem.utils.data_ncv.md
+      - Universal functions: reference/biodem.utils.uni.md
+    - CLI: reference/biodem.cli_dem.md

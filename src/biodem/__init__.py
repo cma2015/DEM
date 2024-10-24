@@ -1,16 +1,24 @@
 """
-biodem
-DEM in Python.
+**`biodem`**
+
+Please cite our paper if you use this package:
+
+[Dual-extraction modeling: A multi-modal deep-learning architecture for phenotypic prediction and functional gene mining of complex traits](https://doi.org/10.1016/j.xplc.2024.101002)
 
 """
 
 name = "biodem"
-__version__ = "0.6.0"
+__version__ = "0.9.1"
 __author__ = 'Chenhua Wu, Yanlin Ren'
 __credits__ = 'Northwest A&F University'
 
-from .module_data_prep import filter_na_pheno, impute_omics, select_varpca, select_rf
-from .module_data_prep_ncv import KFoldSplitter, data_prep_ncv_regre, data_prep_ncv_class
-from .utils import gen_ncv_omics_filepaths, gen_ncv_pheno_filenames, process_avail_snp, workers_start_pts, rm_ckpt, collect_models_paths
-from .module_snp import SNP2GeneTrain, SNP2GenePipeline, SNPDataModule, snp_to_gene, train_snp2gene
-from .module_dem import DEMTrain, DEMTrainPipeline, DEMLTNDataModule, DEMPredict, predict_pheno, DEMFeatureRanking, rank_feat
+from biodem.utils.uni import read_pkl_gv, train_model, CollectFitLog, get_avail_cpu_count, get_avail_nvgpu, get_map_location
+from biodem.utils.data_ncv import OptimizeLitdataNCV, optimize_data_external, DEMDataset, DEMDataModule4Train, DEMDataModule4Uni
+from biodem.s2g.pipeline import SNP2GBFitPipe, SNP2GBTransPipe
+from biodem.dem.pipeline import DEMFitPipe, DEMPredict
+from biodem.dem.rank import DEMFeatureRanking
+
+from biodem import constants
+from biodem import utils
+from biodem import dem
+from biodem import s2g
