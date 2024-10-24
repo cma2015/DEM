@@ -7,7 +7,7 @@
 [![pypi-badge](https://img.shields.io/pypi/v/biodem)](https://pypi.org/project/biodem)
 [![pypi-badge](https://img.shields.io/pypi/dm/biodem.svg?label=Pypi%20downloads)](https://pypi.org/project/biodem)
 ![License](https://img.shields.io/github/license/cma2015/DEM)
-[![docs-badge](https://cma2015.github.io/DEM)](https://cma2015.github.io/DEM)
+[![docs-badge](https://wuchenh.github.io/DEM/)](https://wuchenh.github.io/DEM/)
 
 </div>
 
@@ -15,7 +15,7 @@
 >
 > v0.9.1 is released with a lot of improvements!
 >
-> Please checkout the tutorials and documentations at [cma2015.github.io/DEM](https://cma2015.github.io/DEM).
+> Please checkout the tutorials and documentations at [cma2015.github.io/DEM](https://wuchenh.github.io/DEM/).
 
 + The **DEM** is implemented in the Python package [**`biodem`**](https://pypi.org/project/biodem), which comprises 4 modules: data preprocessing, dual-extraction modeling, phenotypic prediction, and functional gene mining.
 + For more details, please check out our [publication](https://doi.org/10.1016/j.xplc.2024.101002). [🖱️Click to copy citation](#citation)
@@ -53,7 +53,7 @@
 
 ## Usage
 
-Please checkout the documentations at [cma2015.github.io/DEM](https://cma2015.github.io/DEM).
+Please checkout the documentations at [cma2015.github.io/DEM](https://wuchenh.github.io/DEM/).
 
 <br></br>
 
