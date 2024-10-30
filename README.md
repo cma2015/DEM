@@ -14,10 +14,10 @@
 >
 > v0.9.1 is released with a lot of improvements!
 >
-> Please checkout the tutorials and documentations at 📄[cma2015.github.io/DEM](https://wuchenh.github.io/DEM/).
+**Please checkout the tutorials and documentations at 📄[cma2015.github.io/DEM](https://wuchenh.github.io/DEM/).**
 
 + The **DEM** is implemented in the Python package [**`biodem`**](https://pypi.org/project/biodem), which comprises 4 modules: data preprocessing, dual-extraction modeling, phenotypic prediction, and functional gene mining.
-+ For more details, please check out our [publication](https://doi.org/10.1016/j.xplc.2024.101002). _ 🖱️[Click to copy citation](#citation)
++ For more details, please check out our [publication](https://doi.org/10.1016/j.xplc.2024.101002).  🖱️[Click to copy citation](#citation)
 
 <table style="border-collapse: collapse; border: 1px solid black;">
   <tr>
